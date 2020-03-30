@@ -45,7 +45,7 @@ def client():
 
     # Receiving data back from the server
       data_from_server = cs.recv(1024).decode('utf-8')
-
+      print("data from server: "+ str(data_from_server))
 
     # Splitting data into a list
       data_list = data_from_server.split(" ")

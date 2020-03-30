@@ -1,0 +1,4 @@
+Hostname - Error:HOST NOT FOUND
+rutgers.com 172.34.4.6 A
+Hostname - Error:HOST NOT FOUND
+amazon.org 94.5.6.7 A
