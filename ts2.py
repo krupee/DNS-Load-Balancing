@@ -77,6 +77,8 @@ def server():
             # Sending back either A record or NS record back to client
             
             if (e is not None):
+                print("sending from TS2: ", e)
+
                 full = ("{:<10}".format(len(e))+e)
                 csockid.send(full.encode('utf-8'))
 

@@ -38,7 +38,7 @@ def queryTS1(s1,hostname):
       # Setting timeout flag to 1
       timeoutflag = 1
       print("timed out!")
-      return "Hostname - Error:HOST NOT FOUND"
+      return str(hostname)+" - Error:HOST NOT FOUND"
       
         
     if new_msg:
@@ -63,7 +63,7 @@ def queryTS1(s1,hostname):
         if (timeoutflag == 1):
           # Sending error message
           #s1.send("Hostname - Error:HOST NOT FOUND".encode('utf-8'))
-          return "Hostname - Error:HOST NOT FOUND"
+          return str(hostname)+" - Error:HOST NOT FOUND"
         else: #print(stream[10:])
           recieved_hostname=stream[10:]
           #print(recieved_hostname)
@@ -74,6 +74,70 @@ def queryTS1(s1,hostname):
         # Resetting buffer
         new_msg = True
         stream = ""
+
+
+
+def queryTS2(s2,hostname):
+  hostname = str(hostname)
+  full = ("{:<10}".format(len(hostname))+hostname)
+
+  #print(full)
+  # Sending the word to TS1 server
+  print("[LS]: LS sending hostname to TS2 through Socket:: " + str(hostname))
+  # Sending hostname to LS server
+  s2.send(full.encode("utf-8"))
+  # Setting timeout interval
+  s2.settimeout(7)
+  timeoutflag = 0
+  stream = ''
+      # Initially setting new_msg flag to true
+  new_msg = True
+  while True:
+    try:
+      # Recieving header info of data sent from client
+      data = s2.recv(20).decode('utf-8')
+    except mysoc.timeout:
+      # Could not find entry, thus timeout
+      # Setting timeout flag to 1
+      timeoutflag = 1
+      print("timed out!")
+      return str(hostname)+" - Error:HOST NOT FOUND"
+      
+        
+    if new_msg:
+        #print("new msg len:",data[:10])
+        ###print("msglen preview:",len(data[:10]))
+        try:
+          # Obtaining headersize from stream
+          msglen = int(data[:10])
+        except ValueError:
+          break
+        new_msg = False
+
+        #print(f"full message length: {msglen}")
+        
+    stream += data
+
+    ###print(len(stream))
+
+
+    if (len(stream)-10 == msglen) or (timeoutflag == 1):
+        #print("full msg recvd:")
+        if (timeoutflag == 1):
+          # Sending error message
+          #s1.send("Hostname - Error:HOST NOT FOUND".encode('utf-8'))
+          return str(hostname)+" - Error:HOST NOT FOUND"
+        else: #print(stream[10:])
+          recieved_hostname=stream[10:]
+          #print(recieved_hostname)
+          print("ls got word from ts1:", recieved_hostname)
+          # Sending back either A record to client
+          return str(recieved_hostname)
+
+        # Resetting buffer
+        new_msg = True
+        stream = ""
+
 
 
 # server task
@@ -119,14 +183,18 @@ def server():
 
     ts1Hostname = mysoc.gethostbyname(sys.argv[2])
     ts1ListenPort =  int(sys.argv[3])
-    #ts2Hostname =  mysoc.gethostbyname(sys.argv[4])
-    #ts2ListenPort =  int(sys.argv[5])
+    ts2Hostname =  mysoc.gethostbyname(sys.argv[4])
+    ts2ListenPort =  int(sys.argv[5])
+
     server_binding=(ts1Hostname,ts1ListenPort)
     s1.connect(server_binding)
     print("Connected to TS1")
+    
+    server_binding=(ts2Hostname,ts2ListenPort)
+    s2.connect(server_binding)
+    print("Connected to TS2")
 
-    #ss.bind(server_binding)
-    #ss.listen(4)
+    
 
     
 
@@ -173,8 +241,14 @@ def server():
               print("got word:", recieved_hostname)
               s1word = queryTS1(s1,recieved_hostname)
               print(s1word)
-              csockid.send(s1word.encode("utf-8"))
-              #print(recieved_hostname)
+              if ("Error:HOST NOT FOUND" in s1word):
+                s2word = queryTS2(s2,recieved_hostname)
+                csockid.send(s2word.encode("utf-8"))
+              else: 
+                csockid.send(s1word.encode("utf-8"))
+
+              
+              
 
               # Sending back either A record to client
               #csockid.send(recieved_hostname.encode('utf-8'))
