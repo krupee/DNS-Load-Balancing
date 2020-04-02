@@ -180,9 +180,10 @@ def server():
         print(format("socket open error ",err))
 
 
-
+    ts1Host = sys.argv[2]
     ts1Hostname = mysoc.gethostbyname(sys.argv[2])
     ts1ListenPort =  int(sys.argv[3])
+    ts2Host = sys.argv[4]
     ts2Hostname =  mysoc.gethostbyname(sys.argv[4])
     ts2ListenPort =  int(sys.argv[5])
 
@@ -243,8 +244,13 @@ def server():
               print(s1word)
               if ("Error:HOST NOT FOUND" in s1word):
                 s2word = queryTS2(s2,recieved_hostname)
-                csockid.send(s2word.encode("utf-8"))
+                if ("Error:HOST NOT FOUND" in s2word):
+                  csockid.send(s2word.encode("utf-8"))
+                else:
+                  s2word = s2word + " " + str(ts2Host)
+                  csockid.send(s2word.encode("utf-8")) 
               else: 
+                s1word = s1word + " " + str(ts1Host)
                 csockid.send(s1word.encode("utf-8"))
 
               
