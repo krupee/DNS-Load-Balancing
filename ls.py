@@ -24,7 +24,7 @@ def queryTS1(s1,hostname):
   # Sending hostname to LS server
   s1.send(full.encode("utf-8"))
   # Setting timeout interval
-  s1.settimeout(7)
+  s1.settimeout(5)
   timeoutflag = 0
   stream = ''
       # Initially setting new_msg flag to true
@@ -87,7 +87,7 @@ def queryTS2(s2,hostname):
   # Sending hostname to LS server
   s2.send(full.encode("utf-8"))
   # Setting timeout interval
-  s2.settimeout(7)
+  s2.settimeout(5)
   timeoutflag = 0
   stream = ''
       # Initially setting new_msg flag to true
