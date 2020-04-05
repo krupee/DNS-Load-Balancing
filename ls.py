@@ -247,10 +247,10 @@ def server():
                 if ("Error:HOST NOT FOUND" in s2word):
                   csockid.send(s2word.encode("utf-8"))
                 else:
-                  s2word = s2word + " " + str(ts2Host)
+                  s2word = s2word
                   csockid.send(s2word.encode("utf-8")) 
               else: 
-                s1word = s1word + " " + str(ts1Host)
+                s1word = s1word
                 csockid.send(s1word.encode("utf-8"))
 
               
